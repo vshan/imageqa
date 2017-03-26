@@ -65,37 +65,6 @@ id_mat = np.identity(len(ans_dict), dtype='int32')
 labels_arr = [id_mat[get_emb(x.strip().encode(), ans_dict)] for x in answers_arr]
 labels_arr = np.array(labels_arr)
 
-if sequential_mod:
-  image_model = Sequential()
-  image_model.add(Dense(word_vec_dim, 
-                input_dim=img_dim,
-                init='uniform',
-                activation='linear'))
-  image_model.add(Reshape((1,word_vec_dim), 
-                  input_shape=(word_vec_dim,)))
-
-  lang_model = Sequential()
-  lang_model.add(Embedding(max_features, 
-                           word_vec_dim,
-                           input_length=maxlen,
-                           dropout=0.2))
-
-  vis_lstm_model = Sequential()
-  vis_lstm_model.add(Merge([image_model, lang_model], 
-                            mode='concat', 
-                            concat_axis=1))
-
-  vis_lstm_model.add(LSTM(512, 
-                          return_sequences=False, 
-                          input_shape=(maxlen+1, word_vec_dim)))
-  vis_lstm_model.add(Dropout(0.5))
-  vis_lstm_model.add(Dense(answer_set_dim, 
-                           activation='softmax'))
-
-  vis_lstm_model.compile(loss='categorical_crossentropy',
-                         optimizer='rmsprop',
-                         metrics=['accuracy'])
-
 if file_exists(model_save_file):
   print("Model already exists. Loading...")
   vis_lstm_model = load_model(model_save_file)
